@@ -1,0 +1,40 @@
+version: '3.7'
+
+# The different services that make up our "network" of containers
+services:
+    # Express is our first service
+    express:
+        # The location of dockerfile to build this service
+        build: ./services/express
+        # Command to run once the Dockerfile completes building
+        command: npm start
+        # Volumes, mounting our files to parts of the container
+        volumes:
+            - ./services/express:/usr/src/app/
+        # Ports to map, mapping our port 5000, to the port 5000 on the container
+        ports: 
+            - 5000:5000
+        # designating a file with environment variables
+        env_file:
+            - ./.env.express
+        # Tell docker this container depends on the neo service so they can communicate, the neo4j server will be located at neo:7474
+        depends_on:
+            - neo
+    ## Defining the Neo4j Database Service        
+    neo:
+        # The image to use
+        image: neo4j:latest
+        # map the ports so we can check the db server is up
+        ports: 
+            - 7474:7474
+            - 7687:7687
+        # mounting a named volume to the container to track db data
+        volumes:
+            - neo4j_data:/data/
+        env_file:
+            - .env.neo4j
+
+## volumes to be generated, these are saved somewhere for repeated use by docker
+volumes:
+    neo4j_data:
+
